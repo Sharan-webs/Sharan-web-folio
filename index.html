@@ -106,7 +106,6 @@
     border-radius:50%;
     object-fit:cover;
     animation:spin 200s linear infinite;
-    box-shadow:0 0 90px rgba(77,124,255,.25), inset 0 0 60px rgba(0,0,0,.5);
   }
   @keyframes spin{to{transform:rotate(360deg);}}
 
@@ -152,8 +151,9 @@
     position:fixed;inset:0;z-index:100;
     display:flex;align-items:center;justify-content:center;
     background:var(--void);
-    transition:opacity 1.1s ease, visibility 1.1s ease;
+    transition:opacity 7s ease, visibility 7s ease;
     overflow:hidden;
+    cursor:pointer;
   }
   #loader.hide{opacity:0;visibility:hidden;pointer-events:none;}
   .loader-ring{
@@ -173,16 +173,6 @@
     animation:riseIn 1.4s ease both;
   }
   @keyframes riseIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
-  .loader-eyebrow{
-    font-family:var(--font-mono);
-    font-size:11px;letter-spacing:.32em;
-    color:var(--signal);
-    margin-bottom:22px;
-    display:flex;align-items:center;justify-content:center;gap:10px;
-  }
-  .loader-eyebrow::before,.loader-eyebrow::after{
-    content:'';width:26px;height:1px;background:var(--signal);opacity:.5;
-  }
   .loader-title{
     font-family:var(--font-display);
     font-weight:700;
@@ -194,40 +184,23 @@
     background:linear-gradient(180deg,#fff, #a9b6d6);
     -webkit-background-clip:text;background-clip:text;color:transparent;
   }
-  .loader-sub{
-    margin-top:16px;
-    font-family:var(--font-mono);
-    font-size:13px;
-    color:var(--mist);
-    letter-spacing:.03em;
-  }
-  .enter-btn{
-    margin-top:44px;
-    display:inline-flex;align-items:center;gap:12px;
-    padding:16px 34px;
-    border:1px solid rgba(232,178,75,.5);
-    border-radius:2px;
-    font-family:var(--font-mono);
-    font-size:12px;letter-spacing:.2em;
-    color:var(--star);
-    background:rgba(232,178,75,.06);
-    position:relative;overflow:hidden;
-    transition:background .3s ease, border-color .3s ease, transform .2s ease;
-  }
-  .enter-btn:hover{background:rgba(232,178,75,.14);border-color:var(--signal);transform:translateY(-1px);}
-  .enter-btn:active{transform:translateY(0);}
-  .enter-btn::before,.show-btn::before,.drawer-cta::before{
+  .show-btn::before,.drawer-cta::before{
     content:'';position:absolute;top:0;left:-120%;width:60%;height:100%;
     background:linear-gradient(115deg,transparent,rgba(255,255,255,.18),transparent);
     transform:skewX(-20deg);transition:left .6s ease;
   }
-  .enter-btn:hover::before,.show-btn:hover::before,.drawer-cta:hover::before{left:130%;}
-  .enter-btn svg{width:14px;height:14px;stroke:var(--signal);}
-  .loader-hint{
-    margin-top:20px;
+  .show-btn:hover::before,.drawer-cta:hover::before{left:130%;}
+  .tap-hint{
+    position:absolute;left:50%;bottom:64px;
+    transform:translateX(-50%);
     font-family:var(--font-mono);
-    font-size:10px;letter-spacing:.15em;
-    color:var(--mist-dim);
+    font-size:10px;letter-spacing:.28em;
+    color:var(--mist);
+    animation:pulseHint 2.4s ease-in-out infinite;
+  }
+  @keyframes pulseHint{
+    0%,100%{opacity:.25;}
+    50%{opacity:.9;}
   }
 
   /* ---------- NAV ---------- */
@@ -236,12 +209,15 @@
     height:var(--nav-h);
     display:flex;align-items:center;justify-content:space-between;
     padding:0 clamp(20px,5vw,64px);
-    backdrop-filter:blur(14px);
-    background:linear-gradient(180deg, rgba(4,6,11,.72), rgba(4,6,11,0));
-    opacity:0;transform:translateY(-10px);
-    transition:opacity .8s ease .2s, transform .8s ease .2s;
+    background:linear-gradient(180deg, rgba(4,6,11,.88), rgba(4,6,11,.1));
+    opacity:0;
+    transition:opacity .8s ease .2s;
   }
-  .revealed nav{opacity:1;transform:translateY(0);}
+  nav::before{
+    content:'';position:absolute;inset:0;z-index:-1;
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  }
+  .revealed nav{opacity:1;}
   .brand{
     font-family:var(--font-mono);font-size:14px;letter-spacing:.14em;
     display:flex;align-items:center;gap:9px;
@@ -545,20 +521,14 @@
   </audio>
 
   <!-- LOADER -->
-  <div id="loader">
+  <div id="loader" tabindex="0" role="button" aria-label="Enter site">
     <div class="loader-ring r1"></div>
     <div class="loader-ring r2"></div>
     <div class="loader-ring r3"></div>
     <div class="loader-inner">
-      <div class="loader-eyebrow">TRANSMISSION INCOMING</div>
-      <h1 class="loader-title">Welcome to my<br><span>portfolio</span></h1>
-      <p class="loader-sub">SHARAN KUMAR C — EDITOR / DEVELOPER / BUILDER</p>
-      <button class="enter-btn" id="enterBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        ENTER SITE
-      </button>
-      <p class="loader-hint">audio &amp; motion · best viewed with sound on</p>
+      <h1 class="loader-title">Welcome to<br><span>My portfolio</span></h1>
     </div>
+    <div class="tap-hint">TAP ANYWHERE</div>
   </div>
 
   <!-- NAV -->
@@ -791,19 +761,27 @@
   }
   setInterval(spawnShootingStar, 5000);
 
-  // ---------- Loader / Enter ----------
+  // ---------- Loader / Tap anywhere to enter ----------
   var loader = document.getElementById('loader');
-  var enterBtn = document.getElementById('enterBtn');
   var bgm = document.getElementById('bgm');
   var body = document.body;
+  var entered = false;
 
-  enterBtn.addEventListener('click', function(){
+  function enterSite(){
+    if(entered) return;
+    entered = true;
     bgm.volume = 0.55;
     bgm.play().catch(function(){});
     loader.classList.add('hide');
-    body.classList.remove('locked');
     body.classList.add('revealed');
-    setTimeout(spawnShootingStar, 400);
+    setTimeout(function(){
+      body.classList.remove('locked');
+    }, 900);
+    setTimeout(spawnShootingStar, 1200);
+  }
+  loader.addEventListener('click', enterSite);
+  loader.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' ') enterSite();
   });
 
   // ---------- Sound toggle ----------
